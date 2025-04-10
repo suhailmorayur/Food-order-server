@@ -147,4 +147,55 @@ const userLogout = (req, res) => {
 
 
 
-module.exports= {userSignup,userLogin , userProfile ,userLogout}
+
+
+const updateUser = async (req, res) => {
+  const userId = req.user.id; // From auth middleware
+
+  const { name, mobile, address } = req.body;
+
+  try {
+    // Build the fields to update
+    const updateFields = {};
+    if (name) updateFields.name = name;
+    if (mobile) updateFields.mobile = mobile;
+    if (address) {
+      updateFields.address = {
+        street: address.street || "",
+        city: address.city || "",
+        state: address.state || "",
+        postalCode: address.postalCode || "",
+        country: address.country || ""
+      };
+    }
+
+    // Update the user
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $set: updateFields },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "User updated successfully",
+      user: updatedUser,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to update user",
+      error: error.message,
+    });
+  }
+};
+
+
+module.exports= {userSignup,userLogin , userProfile ,userLogout ,updateUser }

@@ -112,7 +112,7 @@ const adminLogin = async (req, res) => {
 
   const adminProfile = async (req,res)=>{
     try{
-      const adminId = req.user.id
+      const adminId = req.admin.id
       console.log(adminId);
       const adminData = await Admin.findOne({ _id: adminId}).select("-password")
       return res.json({data: adminData, message: "admin profile fetched"})
@@ -148,6 +148,38 @@ const adminLogin = async (req, res) => {
   };
 
 
+
+  const updateAdmin = async (req, res) => {
+    const adminId = req.admin._id; // From auth middleware (decoded token)
+    const updateFields = req.body;
+  
+    try {
+      const updatedAdmin = await Admin.findByIdAndUpdate(
+        adminId,
+        { $set: updateFields },
+        { new: true }
+      );
+  
+      if (!updatedAdmin) {
+        return res.status(404).json({ message: "Admin not found" });
+      }
+  
+      res.status(200).json({
+        success: true,
+        message: "Admin profile updated successfully",
+        admin: updatedAdmin,
+      });
+    } catch (error) {
+      res.status(500).json({
+        message: "Failed to update admin",
+        error: error.message,
+      });
+    }
+  };
+  
+ 
+
+
 module.exports={
-    adminSignup , adminLogin ,adminProfile , adminLogout
+    adminSignup , adminLogin ,adminProfile , adminLogout ,updateAdmin
 }
