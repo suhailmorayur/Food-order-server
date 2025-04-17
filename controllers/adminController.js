@@ -10,16 +10,13 @@ const adminSignup = async (req, res) => {
   const { name, email, password, mobile } = req.body;
 
   try {
-    // Check if admin already exists
     const existingAdmin = await Admin.findOne({ email });
     if (existingAdmin) {
       return res.status(400).json({ message: "Admin already exists" });
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    // Create new admin
     const newAdmin = new Admin({
       name,
       email,
@@ -77,6 +74,7 @@ const adminLogin = async (req, res) => {
       const isPasswordValid = await bcrypt.compare(password, existingAdmin.password);
       if (!isPasswordValid) {
         return res.status(401).json({ message: "Invalid password" });
+        
       }
   
       // Generate JWT token
@@ -150,7 +148,7 @@ const adminLogin = async (req, res) => {
 
 
   const updateAdmin = async (req, res) => {
-    const adminId = req.admin._id; // From auth middleware (decoded token)
+    const adminId = req.admin._id; 
     const updateFields = req.body;
   
     try {

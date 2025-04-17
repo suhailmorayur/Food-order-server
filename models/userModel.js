@@ -27,7 +27,7 @@ const userSchema = new mongoose.Schema({
     default: "user"
   },
 
-  address: addressSchema  // ✅ Address added here
+  address: addressSchema  
 
 }, { timestamps: true });
 

@@ -22,10 +22,6 @@ const foodSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-  category: {
-    type: String,
-    required: true,
-  },
   available: {
     type: Boolean,
     default: true,
