@@ -30,7 +30,7 @@ const userSignup = async (req, res) => {
     await newUser.save();
 
     // Generate JWT token
-    const token = jwt.sign({ id: newUser._id , name: newUser.name }, JWT_SECRET, {
+    const token = jwt.sign({ id: newUser._id , name: newUser.name,role:"user" }, JWT_SECRET, {
       expiresIn: "7d",
     });
 
@@ -78,7 +78,10 @@ const userLogin = async (req, res) => {
       }
   
       // Generate JWT token
-      const token = jwt.sign({ id: existingUser._id }, JWT_SECRET, {
+      const token = jwt.sign({  id: existingUser._id,
+        role: "user", // Add this
+        name: existingUser.name,
+        email: existingUser.email}, JWT_SECRET, {
         expiresIn: "7d",
       });
   
