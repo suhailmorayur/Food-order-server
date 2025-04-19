@@ -21,37 +21,31 @@ const orderSchema = new mongoose.Schema({
       quantity: {
         type: Number,
         required: true,
-        min: 1,
       },
-      price: {
-        type: Number,
-        required: true,
-      }
     }
   ],
-  
-  coupon: {
-    code: String,
-    discountAmount: Number,
-  },
-  
-  address: {
-    type: String,
-    required: true,
-  },
   totalAmount: {
     type: Number,
     required: true,
   },
-  status: {
+  paymentStatus: {
     type: String,
-    enum: ["placed", "preparing", "out for delivery", "delivered", "cancelled"],
+    enum: ["pending", "paid", "failed"],
+    default: "pending",
+  },
+  orderStatus: {
+    type: String,
+    enum: ["placed", "preparing", "on the way", "delivered", "cancelled"],
     default: "placed",
   },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  }
-});
+  address: {
+    type: String,
+    required: true,
+  },
+  coupon: {
+    type: String,
+    default: null,
+  },
+}, { timestamps: true });
 
 module.exports = mongoose.model("Order", orderSchema);

@@ -8,10 +8,10 @@ const cloudinary = require("../utils/cloudinary"); // Assuming Cloudinary is con
 const addRestaurant = async (req, res) => {
   try {
     const { name, location, description, openingHours } = req.body;
-    const adminId = req.admin._id; // assuming admin is authenticated and injected by middleware
+    const adminId = req.admin.id; // assuming admin is authenticated and injected by middleware
 
     if (!name || !location || !req.file) {
-      return res.status(400).json({ message: "Name, location, and image are required." });
+      return res.status(400).json({ message: "Name, location, and image are required." })
     }
 
     const imageUrl = req.file.path; // Cloudinary image URL
