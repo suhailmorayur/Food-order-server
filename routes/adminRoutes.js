@@ -1,5 +1,5 @@
 const express = require('express')
-const { adminSignup,generateInviteCode ,adminLogin, adminProfile, adminLogout, updateAdmin } = require('../controllers/adminController')
+const { adminSignup,generateInviteCode ,adminLogin, adminProfile, adminLogout, updateAdmin, getAllInviteCodes } = require('../controllers/adminController')
 const userAuth = require('../middilware/userAuth')
 const adminAuth = require('../middilware/adminAuth')
 const validateInvite = require('../middilware/validateInvite')
@@ -13,4 +13,5 @@ router.put('/update-admin',adminAuth,updateAdmin)
 router.get('/logout', adminAuth, adminLogout )
 
 router.post('/invites/generate', adminAuth,generateInviteCode);
+router.get('/invites/codes' ,adminAuth,getAllInviteCodes)
 module.exports = router     

@@ -58,6 +58,24 @@ const userSignup = async (req, res) => {
 
 
 
+// Get all users
+const getAllUsers = async (req, res) => {
+  try {
+    // Fetch all users from the database
+    const users = await User.find(); // You can add filters or pagination if needed
+    
+    // Return the users and the count
+    res.status(200).json({
+      message: 'Users fetched successfully',
+      count: users.length,
+      users,
+    });
+  } catch (err) {
+    console.error('Error fetching users:', err);
+    res.status(500).json({ message: 'Failed to fetch users' });
+  }
+};
+
 
 
 const userLogin = async (req, res) => {
@@ -201,4 +219,4 @@ const updateUser = async (req, res) => {
 };
 
 
-module.exports= {userSignup,userLogin , userProfile ,userLogout ,updateUser }
+module.exports= {userSignup,userLogin , userProfile ,userLogout ,updateUser , getAllUsers }

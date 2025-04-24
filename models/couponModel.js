@@ -1,3 +1,41 @@
+// const mongoose = require("mongoose");
+
+// const couponSchema = new mongoose.Schema({
+//   code: {
+//     type: String,
+//     required: true,
+//     unique: true,
+//     uppercase: true,
+//     trim: true,
+//   },
+//   discountType: {
+//     type: String,
+//     enum: ["percentage", "flat"],
+//     required: true,
+//   },
+//   discountValue: {
+//     type: Number,
+//     required: true,
+//   },
+//   expirationDate: {
+//     type: Date,
+//     required: true,
+//   },
+//   isActive: {
+//     type: Boolean,
+//     default: true,
+//   },
+//   usageLimit: {
+//     type: Number,
+//     default: 1,
+//   },
+//   usedCount: {
+//     type: Number,
+//     default: 0,
+//   },
+// }, { timestamps: true });
+
+// module.exports = mongoose.model("Coupon", couponSchema);
 const mongoose = require("mongoose");
 
 const couponSchema = new mongoose.Schema({
@@ -8,6 +46,15 @@ const couponSchema = new mongoose.Schema({
     uppercase: true,
     trim: true,
   },
+  title: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  description: {
+    type: String,
+    trim: true
+  },
   discountType: {
     type: String,
     enum: ["percentage", "flat"],
@@ -16,6 +63,10 @@ const couponSchema = new mongoose.Schema({
   discountValue: {
     type: Number,
     required: true,
+  },
+  minOrderAmount: {
+    type: Number,
+    default: 0,
   },
   expirationDate: {
     type: Date,
@@ -33,6 +84,10 @@ const couponSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  usedBy: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }]
 }, { timestamps: true });
 
 module.exports = mongoose.model("Coupon", couponSchema);

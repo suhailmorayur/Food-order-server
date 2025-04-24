@@ -8,52 +8,7 @@ const saltRounds = 10;
 const JWT_SECRET = process.env.JWT_SECRET;
 
 
-// const adminSignup = async (req, res) => {
-//   const { name, email, password, mobile } = req.body;
 
-//   try {
-//     const existingAdmin = await Admin.findOne({ email });
-//     if (existingAdmin) {
-//       return res.status(400).json({ message: "Admin already exists" });
-//     }
-
-//     const hashedPassword = await bcrypt.hash(password, saltRounds);
-
-//     const newAdmin = new Admin({
-//       name,
-//       email,
-//       mobile,
-//       password: hashedPassword,
-//     });
-
-//     await newAdmin.save();
-
-//     // Generate JWT token
-//     const token = jwt.sign({ id: newAdmin._id , name: newAdmin.name,role:"admin" }, JWT_SECRET, {
-//       expiresIn: "7d",
-//     });
-
-//     // Set cookie
-//     res.cookie("token", token, {
-//       httpOnly: true,
-//       secure: process.env.NODE_ENV === "production", // true only in production
-//       sameSite: "strict",
-//       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-//     });
-
-//     res.status(201).json({
-//       message: "Admin registered and logged in successfully",
-//       admin: {
-//         id: newAdmin._id,
-//         name: newAdmin.name,
-//         email: newAdmin.email,
-//         mobile: newAdmin.mobile,
-//       },
-//     });
-//   } catch (err) {
-//     res.status(500).json({ message: "Signup failed", error: err.message });
-//   }
-// };
 
 const adminSignup = async (req, res) => {
   try {
@@ -271,7 +226,17 @@ const adminLogin = async (req, res) => {
     }
   };
 
+  // GET /api/invite/codes
+const getAllInviteCodes = async (req, res) => {
+  try {
+    const codes = await InviteCode.find().populate('createdBy', 'name email');
+    res.status(200).json({ success: true, codes });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to fetch codes' });
+  }
+};
+
 
 module.exports={
-    adminSignup , adminLogin ,adminProfile , adminLogout ,updateAdmin ,generateInviteCode
+    adminSignup , adminLogin ,adminProfile , adminLogout ,updateAdmin ,generateInviteCode , getAllInviteCodes
 }

@@ -6,7 +6,7 @@ const router = express.Router()
 router.post('/',userAuth,addToCart)
 
 router.delete('/remove/:foodId',userAuth,removeFromCart)
-router.put("/update", userAuth, updateCartQuantity);
+router.put("/update/:foodId", userAuth, updateCartQuantity);
 
 router.get('/',userAuth,getCart)
 

@@ -10,7 +10,7 @@ const orderRoutes = require('../routes/orderRoutes')
 // define the about route
 router.use('/user', userRoutes)
 router.use('/admin' , adminRoutes)
-router.use('/restuarants',restaurantRoutes)
+router.use('/restaurants',restaurantRoutes)
 router.use('/fooditems',foodRoutes)
 router.use('/coupons',couponRoutes)
 router.use('/cart',cartRoutes)

@@ -4,7 +4,7 @@ const adminAuth = require('../middilware/adminAuth')
 const upload =require('../middilware/multer')
 const router = express.Router()
 
-router.get('/getAllRestaurants', getAllRestaurants)
+router.get('/', getAllRestaurants)
 router.get('/:id',getSingleRestaurant)
 router.post('/addRestaurant',adminAuth,upload.single("image"), addRestaurant )
 router.put('/updateRestaurant/:id',adminAuth,upload.single("image"),updateRestaurant)

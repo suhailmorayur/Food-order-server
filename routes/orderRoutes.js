@@ -10,6 +10,6 @@ router.post('/',userAuth,placeOrder)
 router.post('/create-razorpay-order',userAuth,createRazorpayOrder)
 
 // 3. Verify payment after success
-router.post('/verify-payment', userAuth, verifyRazorpayPayment);
+router.post('/verify-payment', userAuth,verifyRazorpayPayment);
 
 module.exports = router       
