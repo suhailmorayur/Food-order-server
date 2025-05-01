@@ -7,136 +7,99 @@ const User = require("../models/userModel");
 
 const crypto = require("crypto");
 
-const placeOrder = async (req, res) => {
-  try {
-    const userId = req.user.id;
-    const { address, restaurantId, coupon, razorpayOrderId } = req.body;
-
-    // Fetch cart with populated foodId
-    const cart = await Cart.findOne({ userId }).populate("items.foodId");
-    if (!cart || cart.items.length === 0) {
-      return res.status(400).json({ message: "Cart is empty" });
-    }
-
-    // Ensure totalAmount is valid; calculate manually if not set in the cart
-    let totalAmount = cart.totalAmount || 0;
-    if (isNaN(totalAmount)) {
-      totalAmount = cart.items.reduce((acc, item) => {
-        return acc + (item.foodId.price * item.quantity);
-      }, 0);
-    }
-
-    let discount = 0;
-
-    // If a coupon is provided, calculate the discount (you can adjust this logic as needed)
-    if (coupon && coupon.discountPercentage) {
-      discount = (totalAmount * coupon.discountPercentage) / 100;
-      totalAmount -= discount;
-    }
-
-    // Ensure totalAmount is still a valid number after discount
-    if (isNaN(totalAmount)) {
-      return res.status(400).json({ message: "Invalid total amount" });
-    }
-
-    // ✅ Create new order with correct items and razorpayOrderId
-    const newOrder = new Order({
-      userId,
-      restaurantId,
-      items: cart.items.map((item) => ({
-        foodId: item.foodId._id,
-        quantity: item.quantity,
-        subtotal: item.foodId.price * item.quantity,
-      })),
-      totalAmount,
-      address,
-      coupon,
-      paymentStatus: "paid", // Payment is assumed to be successful here
-      razorpayOrderId, // Store Razorpay order ID for tracking
-    });
-
-    const savedOrder = await newOrder.save();
-
-    // ✅ Clear cart
-    cart.items = [];
-    cart.totalAmount = 0;
-    await cart.save();
-
-    // ✅ Fetch user info
-    const user = await User.findById(userId);
-
-    // ✅ Send SMS confirmation
-    if (user?.mobile) {
-      const orderItems = savedOrder.items
-        .map((item) => `${item.foodId.name} x ${item.quantity}`)
-        .join(", ");
-      const message = `✅ Order Confirmed!\nItems: ${orderItems}\nTotal: ₹${totalAmount}\nThank you for ordering with TastyNest!`;
-
-      const toNumber = user.mobile.startsWith("+") ? user.mobile : `+91${user.mobile}`;
-      await sendSMS(toNumber, message);
-    }
-
-    res.status(201).json({
-      message: "Order placed successfully",
-      discount,
-      totalAmount,
-      order: savedOrder,
-    });
-
-  } catch (error) {
-    console.error("Order error:", error.message);
-    res.status(500).json({ message: "Failed to place order" });
-  }
-};
-
-
-
-
-
-
-
-// const createRazorpayOrder = async (req, res) => {
+// const placeOrder = async (req, res) => {
 //   try {
-//     const userId = req.user._id;
+//     const userId = req.user.id;
+//     const { address, restaurantId, coupon, razorpayOrderId } = req.body;
 
-//     // Fetch cart with populated food and restaurantId
-//     const cart = await Cart.findOne({ userId }).populate({
-//       path: "items.foodId",
-//       populate: { path: "restaurantId" },
-//     });
-
+//     // Fetch cart with populated foodId
+//     const cart = await Cart.findOne({ userId }).populate("items.foodId");
 //     if (!cart || cart.items.length === 0) {
 //       return res.status(400).json({ message: "Cart is empty" });
 //     }
 
-//     const restaurantId = cart.items[0]?.foodId?.restaurantId?._id;
-
-//     if (!restaurantId) {
-//       return res.status(400).json({ message: "restaurantId not found" });
+//     // Ensure totalAmount is valid; calculate manually if not set in the cart
+//     let totalAmount = cart.totalAmount || 0;
+//     if (isNaN(totalAmount)) {
+//       totalAmount = cart.items.reduce((acc, item) => {
+//         return acc + (item.foodId.price * item.quantity);
+//       }, 0);
 //     }
 
-//     const amount = req.body.amount * 100; // Razorpay accepts paise
+//     let discount = 0;
 
-//     const options = {
-//       amount,
-//       currency: "INR",
-//       receipt: `receipt_${Date.now()}`,
-//     };
+//     // If a coupon is provided, calculate the discount (you can adjust this logic as needed)
+//     if (coupon && coupon.discountPercentage) {
+//       discount = (totalAmount * coupon.discountPercentage) / 100;
+//       totalAmount -= discount;
+//     }
 
-//     const razorpayOrder = await razorpay.orders.create(options);
+//     // Ensure totalAmount is still a valid number after discount
+//     if (isNaN(totalAmount)) {
+//       return res.status(400).json({ message: "Invalid total amount" });
+//     }
 
-//     res.status(200).json({
-//       success: true,
-//       orderId: razorpayOrder.id,
-//       amount: razorpayOrder.amount,
+//     // ✅ Create new order with correct items and razorpayOrderId
+//     const newOrder = new Order({
+//       userId,
 //       restaurantId,
+//       items: cart.items.map((item) => ({
+//         name: item.foodId.name,
+//         foodId: item.foodId._id,
+//         quantity: item.quantity,
+//         subtotal: item.foodId.price * item.quantity,
+//         name:item.foodId.name,
+//         image:item.foodId.image
+//       })),
+//       totalAmount,
+//       address,
+//       coupon,
+//       paymentStatus: "paid", // Payment is assumed to be successful here
+//       razorpayOrderId, // Store Razorpay order ID for tracking
 //     });
 
-//   } catch (err) {
-//     console.error("Razorpay create order error:", err);
-//     res.status(500).json({ message: "Failed to create Razorpay order" });
+//     const savedOrder = await newOrder.save();
+// console.log(savedOrder)
+//     // ✅ Clear cart
+//     cart.items = [];
+//     cart.totalAmount = 0;
+//     await cart.save();
+
+//     // ✅ Fetch user info
+//     const user = await User.findById(userId);
+
+//     // ✅ Send SMS confirmation
+//     if (user?.mobile) {
+//       const orderItems = savedOrder.items
+//         .map((item) => `${item.foodId.name} x ${item.quantity}`)
+//         .join(", ");
+//       const message = `✅ Order Confirmed!\nItems: ${orderItems}\nTotal: ₹${totalAmount}\nThank you for ordering with TastyNest!`;
+
+//       const toNumber = user.mobile.startsWith("+") ? user.mobile : `+91${user.mobile}`;
+//       await sendSMS(toNumber, message);
+//     }
+
+//     res.status(201).json({
+//       message: "Order placed successfully",
+//       discount,
+//       totalAmount,
+//       order: savedOrder,
+//     });
+
+//   } catch (error) {
+//     console.error("Order error:", error.message);
+//     res.status(500).json({ message: "Failed to place order" });
 //   }
 // };
+
+
+
+
+
+
+
+
+
 
 const createRazorpayOrder = async (req, res) => {
   try {
@@ -189,6 +152,8 @@ const createRazorpayOrder = async (req, res) => {
         foodId: item.foodId,
         quantity: item.quantity,
         subtotal: item.foodId.price * item.quantity,
+        name:item.foodId.name,
+        image:item.foodId.image
       })),
       totalAmount: req.body.amount,
       paymentStatus: "pending", // Initially set to pending
@@ -222,11 +187,12 @@ const createRazorpayOrder = async (req, res) => {
 
 
 
+
   
 
   // const verifyRazorpayPayment = async (req, res) => {
   //   try {
-  //     const { razorpay_order_id, razorpay_payment_id, razorpay_signature,orderId } = req.body;
+  //     const { razorpay_order_id, razorpay_payment_id, razorpay_signature, o } = req.body;
   
   //     const hmac = crypto.createHmac("sha256", process.env.RAZORPAY_SECRET);
   //     hmac.update(razorpay_order_id + "|" + razorpay_payment_id);
@@ -242,7 +208,8 @@ const createRazorpayOrder = async (req, res) => {
   //       order.razorpayPaymentId = razorpay_payment_id;
   //       order.razorpaySignature = razorpay_signature;
   //       await order.save();
-  
+  //       console.log(order)
+
   //       return res.status(200).json({ success: true, message: "Payment verified successfully" });
   //     } else {
   //       return res.status(400).json({ success: false, message: "Invalid signature" });
@@ -252,9 +219,10 @@ const createRazorpayOrder = async (req, res) => {
   //     res.status(500).json({ success: false, message: "Payment verification failed" });
   //   }
   // };
+  
   const verifyRazorpayPayment = async (req, res) => {
     try {
-      const { razorpay_order_id, razorpay_payment_id, razorpay_signature, o } = req.body;
+      const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
   
       const hmac = crypto.createHmac("sha256", process.env.RAZORPAY_SECRET);
       hmac.update(razorpay_order_id + "|" + razorpay_payment_id);
@@ -262,16 +230,39 @@ const createRazorpayOrder = async (req, res) => {
   
       if (generated_signature === razorpay_signature) {
         // ✅ Find the order using razorpayOrderId
-        const order = await Order.findOne({ "paymentDetails.razorpayOrderId": razorpay_order_id });
+        const order = await Order.findOne({ "paymentDetails.razorpayOrderId": razorpay_order_id }).populate("userId");
         if (!order) return res.status(404).json({ message: "Order not found" });
   
         // ✅ Update payment status
         order.paymentStatus = "paid";
-        order.razorpayPaymentId = razorpay_payment_id;
+        order.paymentDetails.razorpayPaymentId = razorpay_payment_id;
         order.razorpaySignature = razorpay_signature;
         await order.save();
+        console.log("Order updated:", order);
   
-        return res.status(200).json({ success: true, message: "Payment verified successfully" });
+        // ✅ Clear user's cart
+        const cart = await Cart.findOne({ userId: order.userId });
+        if (cart) {
+          cart.items = [];
+          cart.totalAmount = 0;
+          await cart.save();
+          console.log("Cart cleared");
+        }
+  
+        // ✅ Send SMS confirmation
+        const user = order.userId;
+        if (user?.mobile) {
+          const orderItems = order.items
+            .map((item) => `${item.name} x ${item.quantity}`)
+            .join(", ");
+          const message = `✅ Payment Successful!\nItems: ${orderItems}\nTotal: ₹${order.totalAmount}\nThank you for ordering with TastyNest!`;
+  
+          const toNumber = user.mobile.startsWith("+") ? user.mobile : `+91${user.mobile}`;
+          await sendSMS(toNumber, message);
+          console.log("SMS sent");
+        }
+  
+        return res.status(200).json({ success: true, message: "Payment verified, cart cleared, and SMS sent" });
       } else {
         return res.status(400).json({ success: false, message: "Invalid signature" });
       }
@@ -282,4 +273,33 @@ const createRazorpayOrder = async (req, res) => {
   };
   
 
-module.exports={placeOrder,createRazorpayOrder, verifyRazorpayPayment}
+const userOrders = async (req,res) =>{
+  const userId = req.user.id;
+
+  try {
+    const orders = await Order.find({ userId });
+    res.json({ orders });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+}
+
+const cancellOrder = async (req,res)=>{
+  const { orderId } = req.params;
+  const order = await Order.findById(orderId);
+
+  if (!order) {
+    return res.status(404).json({ message: 'Order not found' });
+  }
+
+  if (order.orderStatus === 'Shipped' || order.orderStatus === 'Delivered') {
+    return res.status(400).json({ message: 'Cannot cancel shipped or delivered orders' });
+  }
+
+  order.orderStatus = 'Canceled';
+  await order.save();
+  res.status(200).json({ message: 'Order canceled successfully' });
+}
+
+
+module.exports={createRazorpayOrder, verifyRazorpayPayment ,  userOrders ,cancellOrder}

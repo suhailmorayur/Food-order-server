@@ -26,6 +26,14 @@ const orderSchema = new mongoose.Schema(
         subtotal: {
           type: Number,
           required: true,
+        },
+        name:{
+          type: String,
+          require:true,
+        },
+        image:{
+          type:String,
+          require:true
         }
       }
     ],
@@ -40,7 +48,7 @@ const orderSchema = new mongoose.Schema(
     },
     orderStatus: {
       type: String,
-      enum: ["placed", "preparing", "on the way", "delivered", "cancelled"],
+      enum: ["placed", "preparing", "on the way", "delivered", "Canceled"],
       default: "placed",
     },
     address: {

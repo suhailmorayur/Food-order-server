@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const Admin = require('../models/adminModel');
 const InviteCode = require('../models/inviteCode');
 const crypto = require('crypto'); // Add at top
+const Order = require('../models/orderModel');
 
 const saltRounds = 10;
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -237,6 +238,56 @@ const getAllInviteCodes = async (req, res) => {
 };
 
 
+
+const getAllOrders = async (req, res) => {
+  try {
+    const orders = await Order.find();
+    res.status(200).json(orders);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// Get order by ID
+const getOrderById = async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+    res.status(200).json(order);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// Update order
+const updateOrder = async (req, res) => {
+  try {
+    const order = await Order.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+    res.status(200).json(order);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// Delete order
+const deleteOrder = async (req, res) => {
+  try {
+    const order = await Order.findByIdAndDelete(req.params.id);
+    if (!order) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+    res.status(200).json({ message: 'Order deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+
 module.exports={
-    adminSignup , adminLogin ,adminProfile , adminLogout ,updateAdmin ,generateInviteCode , getAllInviteCodes
+    adminSignup , adminLogin ,adminProfile , adminLogout ,updateAdmin ,generateInviteCode , getAllInviteCodes ,getAllOrders, getOrderById, updateOrder, deleteOrder
 }
