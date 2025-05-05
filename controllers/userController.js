@@ -62,7 +62,7 @@ const userSignup = async (req, res) => {
 const getAllUsers = async (req, res) => {
   try {
     // Fetch all users from the database
-    const users = await User.find(); // You can add filters or pagination if needed
+    const users = await User.find(); 
     
     // Return the users and the count
     res.status(200).json({

@@ -2,7 +2,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const Admin = require('../models/adminModel');
 const InviteCode = require('../models/inviteCode');
-const crypto = require('crypto'); // Add at top
+const crypto = require('crypto'); 
 const Order = require('../models/orderModel');
 
 const saltRounds = 10;
@@ -67,7 +67,7 @@ const adminSignup = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Signup Error:", error); // 🔍 ADD THIS LINE TO DEBUG
+    console.error("Signup Error:", error); 
     res.status(500).json({ 
       success: false,
       message: "Admin registration failed",
@@ -100,7 +100,7 @@ const adminLogin = async (req, res) => {
   
       // Generate JWT token
       const token = jwt.sign({    id: existingAdmin._id,
-        role: "admin", // Add this
+        role: "admin", 
         name: existingAdmin.name,
         email: existingAdmin.email }, JWT_SECRET, {
         expiresIn: "7d",

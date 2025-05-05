@@ -3,43 +3,6 @@ const Food = require("../models/foodModel");
 const { calculateTotal } = require("../utils/cartUtils");
 
 
-// POST /api/cart/add
-// const addToCart = async (req, res) => {
-//     try {
-//       const userId = req.user.id; // assuming auth middleware adds user
-//       const { foodId, quantity } = req.body;
-  
-//       const foodItem = await Food.findById(foodId);
-//       if (!foodItem) {
-//         return res.status(404).json({ message: "Food item not found" });
-//       }
-  
-//       let cart = await Cart.findOne({ userId });
-  
-//       if (!cart) {
-//         cart = new Cart({ userId, items: [] });
-//       }
-  
-//       const existingItem = cart.items.find(item => item.foodId.toString() === foodId);
-  
-//       if (existingItem) {
-//         existingItem.quantity += quantity;
-//       } else {
-//         cart.items.push({ foodId, quantity });
-//       }
-  
-//       // Calculate total
-//       cart.totalAmount = await calculateTotal(cart.items);
-  
-//       const updatedCart = await cart.save();
-  
-//       res.status(200).json({ message: "Item added to cart", cart: updatedCart });
-  
-//     } catch (error) {
-//       console.error("Error adding to cart:", error.message);
-//       res.status(500).json({ message: "Server error while adding to cart" });
-//     }
-//   };
 
 const addToCart = async (req, res) => {
   try {
@@ -151,12 +114,11 @@ const updateCartQuantity = async (req, res) => {
     try {
       const userId = req.user.id;
   
-      // Fetch the cart and populate food and restaurant details
       const cart = await Cart.findOne({ userId })
         .populate({
           path: "items.foodId",
           populate: {
-            path: "restaurantId", // Populate restaurant details within each food item
+            path: "restaurantId", 
             model: "Restaurant",
           },
         });
@@ -168,7 +130,6 @@ const updateCartQuantity = async (req, res) => {
         });
       }
   
-      // Construct the response with the populated restaurant data
       const cartData = {
         items: cart.items.map(item => ({
           _id: item._id,
@@ -178,7 +139,7 @@ const updateCartQuantity = async (req, res) => {
             price: item.foodId.price,
             image: item.foodId.image,
             description: item.foodId.description,
-            restaurantId: item.foodId.restaurantId // Add restaurantId here
+            restaurantId: item.foodId.restaurantId 
           },
           quantity: item.quantity,
           subtotal: item.quantity * item.foodId.price,

@@ -10,7 +10,7 @@ const restaurantSchema = new mongoose.Schema({
     required: true,
   },
   image: {
-    type: String, // Cloudinary URL or local URL
+    type: String, 
     required: true,
   },
   description: {

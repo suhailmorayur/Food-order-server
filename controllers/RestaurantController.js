@@ -1,20 +1,20 @@
 
 
 const Restaurant = require("../models/restaurantModel");
-const cloudinary = require("../utils/cloudinary"); // Assuming Cloudinary is configured
+const cloudinary = require("../utils/cloudinary"); 
 
 
 // POST /api/admin/restaurants
 const addRestaurant = async (req, res) => {
   try {
     const { name, location, description, openingHours } = req.body;
-    const adminId = req.admin.id; // assuming admin is authenticated and injected by middleware
+    const adminId = req.admin.id; 
 
     if (!name || !location || !req.file) {
       return res.status(400).json({ message: "Name, location, and image are required." })
     }
 
-    const imageUrl = req.file.path; // Cloudinary image URL
+    const imageUrl = req.file.path; 
 
     const newRestaurant = new Restaurant({
       name,
@@ -41,8 +41,7 @@ const addRestaurant = async (req, res) => {
 
 const getAllRestaurants = async (req, res) => {
     try {
-      const restaurants = await Restaurant.find().sort({ createdAt: -1 }); // latest first
-  
+      const restaurants = await Restaurant.find().sort({ createdAt: -1 }); 
       res.status(200).json({
         message: "Restaurants fetched successfully",
         count: restaurants.length,
@@ -122,13 +121,12 @@ const deleteRestaurant = async (req, res) => {
         return res.status(404).json({ message: "Restaurant not found" });
       }
   
-      // 🔹 Optional: Delete image from Cloudinary
       if (restaurant.image) {
-        const publicId = restaurant.image.split("/").pop().split(".")[0]; // Extract public ID from URL
+        const publicId = restaurant.image.split("/").pop().split(".")[0]; 
         await cloudinary.uploader.destroy(publicId);
       }
   
-      await restaurant.deleteOne(); // Delete restaurant from DB
+      await restaurant.deleteOne(); 
   
       res.status(200).json({ message: "Restaurant deleted successfully" });
   
