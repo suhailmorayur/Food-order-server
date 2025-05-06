@@ -52,10 +52,11 @@ const adminSignup = async (req, res) => {
 
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      secure: true,               // Always true in production
+      sameSite: "None",           // REQUIRED for cross-origin cookies
       maxAge: 7 * 24 * 60 * 60 * 1000
     });
+    
 
     res.status(201).json({
       success: true,
@@ -109,10 +110,11 @@ const adminLogin = async (req, res) => {
       // Set cookie
       res.cookie("token", token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+        secure: true,               // Always true in production
+        sameSite: "None",           // REQUIRED for cross-origin cookies
+        maxAge: 7 * 24 * 60 * 60 * 1000
       });
+      
   
       // Send success response
       res.status(200).json({
